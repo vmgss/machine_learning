@@ -1,10 +1,8 @@
 import pygame
 
-
 # Вычисление евклидова расстояния между двумя точками
 def calculate_distance(point1, point2):
     return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
-
 
 # Функция для поиска соседей точки в пределах eps
 def find_neighbors(points, current_point, epsilon):
@@ -13,7 +11,6 @@ def find_neighbors(points, current_point, epsilon):
         if calculate_distance(current_point, neighbor) < epsilon:
             neighbors.append(neighbor)
     return neighbors
-
 
 # Функция для расширения кластера
 def grow_cluster(points, current_point, neighbors, cluster_id, epsilon, min_points, cluster_labels):
@@ -30,7 +27,6 @@ def grow_cluster(points, current_point, neighbors, cluster_id, epsilon, min_poin
                 neighbors += new_neighbors
         i += 1
 
-
 # Алгоритм DBSCAN
 def perform_dbscan(points, epsilon, min_points):
     cluster_id = 0
@@ -45,14 +41,14 @@ def perform_dbscan(points, epsilon, min_points):
                 grow_cluster(points, current_point, neighbors, cluster_id, epsilon, min_points, cluster_labels)
     return cluster_labels
 
-
 # Функция для добавления цвета
-def get_color(label, base_color):
+def get_color(label, colors):
     if label == -1:
         return RED
+    elif label == 0:
+        return WHITE
     else:
-        return (base_color[0] // 2, base_color[1] // 2, base_color[2] // 2)
-
+        return colors[label % len(colors)]
 
 # Константы для Pygame
 WIDTH = 360
@@ -64,7 +60,10 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
-colors = [RED, GREEN, BLUE, YELLOW]
+PURPLE = (128, 0, 128)
+CYAN = (0, 255, 255)
+ORANGE = (255, 165, 0)
+colors = [RED, GREEN, BLUE, YELLOW, PURPLE, CYAN, ORANGE] # Обновление окрашивания кластеров
 
 # Инициализация Pygame
 pygame.init()
@@ -95,17 +94,8 @@ while running:
                 print(cluster_labels, points)
                 # Отрисовка точек на экране с учетом кластеров
                 for point, label in zip(points, cluster_labels):
-                    color = get_color(label, WHITE)
+                    color = get_color(label, colors)
                     pygame.draw.circle(screen, color, point, 5)
-            if event.key == pygame.K_r:
-                # Отрисовка точек с флажками (красный для шума, зеленый и желтый для граничных и ядерных точек)
-                for point, label in zip(points, cluster_labels):
-                    if label == -1:
-                        pygame.draw.circle(screen, RED, point, 5)
-                    elif label == 0:
-                        pygame.draw.circle(screen, YELLOW, point, 5)
-                    else:
-                        pygame.draw.circle(screen, GREEN, point, 5)
 
     pygame.display.flip()
 pygame.quit()
